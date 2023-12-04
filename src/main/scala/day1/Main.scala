@@ -6,9 +6,6 @@ import scala.util.matching.Regex
 
 @main
 def main(args: String*): Unit =
-  partOneSolution()
-
-def partOneSolution(): Unit =
   val lines = readInputFile()
   val parsedResult = lines.map(parseElfLine)
   println(parsedResult.sum)
