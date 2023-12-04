@@ -1,19 +1,13 @@
-package day1
+package days.day1
 
-import java.io.{BufferedReader, FileReader}
-import scala.util.Using
+import utils.InputFileReader
 import scala.util.matching.Regex
 
 @main
 def main(args: String*): Unit =
-  val lines = readInputFile()
+  val lines = InputFileReader.getLinesFromFile("./src/main/scala/days/day1/input.txt")
   val parsedResult = lines.map(parseElfLine)
   println(parsedResult.sum)
-
-def readInputFile(): Seq[String] =
-  Using.resource(new BufferedReader(new FileReader("./src/main/scala/day1/input.txt"))) { reader =>
-    Iterator.continually(reader.readLine()).takeWhile(_ != null).toSeq
-  }
 
 def parseElfLine(string: String): Int =
   combineFirstAndSecondDigit.tupled(getFirstAndLastDigitInString(string))
