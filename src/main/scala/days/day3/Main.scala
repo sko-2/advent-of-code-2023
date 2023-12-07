@@ -8,11 +8,16 @@ import scala.util.matching.Regex.Match
 
 @main
 def main(args: String*): Unit =
-  partOneSolution()
+  partTwoSolution()
 
 def partOneSolution(): Unit =
   val paddedInput = loadAndPadInput()
   val result = sumPartNumbers(paddedInput)
+  println(result)
+
+def partTwoSolution(): Unit =
+  val paddedInput = loadAndPadInput()
+  val result = sumGearRatios(paddedInput)
   println(result)
 
 def loadAndPadInput(): Array[String] =
@@ -49,6 +54,41 @@ def sumPartNumbers(lines: Array[String]): Int =
       val partNumberSum = linePartNumberSum()
       scanAndSumPartNumbers(currentIndex + 1, acc + partNumberSum)
   scanAndSumPartNumbers(1, 0)
+
+def sumGearRatios(lines: Array[String]): Int =
+  @tailrec
+  def scanAndSumGearRatios(currentIndex: Int, acc: Int): Int =
+    def lineGearRatioSum(): Int =
+      val gearMatches = getGearMatches(lines(currentIndex))
+      gearMatches
+        .map(g => calculateGearRatio(g))
+        .sum
+
+    def calculateGearRatio(gearMatch: Match): Int =
+      val previousLinePartNumbersTouchingGearMatches = getNumberMatches(lines(currentIndex - 1))
+        .filter(m => (m.start until m.end).intersect(gearMatch.start - 1 to gearMatch.end).nonEmpty)
+      val currentLineTouchingSymbolMatches = getNumberMatches(lines(currentIndex))
+        .filter(m => m.start == gearMatch.end || m.end == gearMatch.start)
+      val nextLinePartNumbersTouchingGearMatches = getNumberMatches(lines(currentIndex + 1))
+        .filter(m => (m.start until m.end).intersect(gearMatch.start - 1 to gearMatch.end).nonEmpty)
+
+      val touchingPartNumbers = previousLinePartNumbersTouchingGearMatches
+          ::: currentLineTouchingSymbolMatches
+          ::: nextLinePartNumbersTouchingGearMatches
+
+      if touchingPartNumbers.length == 2 then
+        touchingPartNumbers
+          .map(p => p.matched.toInt)
+          .product
+      else
+        0
+
+    if currentIndex == (lines.length - 1) then
+      acc
+    else
+      val gearRatioSum = lineGearRatioSum()
+      scanAndSumGearRatios(currentIndex + 1, acc + gearRatioSum)
+  scanAndSumGearRatios(1, 0)
 
 def getNumberMatches(line: String): List[Match] =
   getRegexMatches("(\\d+)".r, line)
