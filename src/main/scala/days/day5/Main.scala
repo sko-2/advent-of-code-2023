@@ -7,15 +7,61 @@ import scala.collection.immutable.HashMap
 
 @main
 def main(args: String*): Unit =
+  val result = partTwoSolution()
+  println(result)
+
+def partOneSolution(): Long =
   val lines = InputFileReader.getLinesFromFile("./src/main/scala/days/day5/input.txt").toList
   lines match
     case seedLine :: blankLine :: xs =>
       val seeds = getSeeds(seedLine)
       val mappings = getMappings(xs)
       val locations = transformSeedsToLocations(seeds, mappings)
-      println(locations.min)
+      locations.min
     case _ =>
       throw RuntimeException("Unexpected input format")
+
+def partTwoSolution(): Long =
+  @tailrec
+  def searchForLowestLocation(locationIndex: Long, seedRanges: List[(Long, Long)], locationToSeedFn: Long => Long): Long =
+    val seedIndex = locationToSeedFn(locationIndex)
+    seedRanges.find(p => seedIndex >= p._1 && seedIndex < (p._1 + p._2)) match
+      case Some(x) => locationIndex
+      case None => searchForLowestLocation(locationIndex + 1, seedRanges, locationToSeedFn)
+  val lines = InputFileReader.getLinesFromFile("./src/main/scala/days/day5/input.txt").toList
+  lines match
+    case seedLine :: blankLine :: xs =>
+      val seedRanges = getSeedRanges(seedLine)
+      val mappings = getMappings(xs)
+      val locationToSeedFn = transformLocationToSeed(_, mappings)
+      searchForLowestLocation(0L, seedRanges, locationToSeedFn)
+    case _ =>
+      throw RuntimeException("Unexpected input format")
+
+def transformLocationToSeed(location: Long, mappings: HashMap[(String, String), List[MappingDetail]]): Long =
+  def getSourceOfDestination(destination: String): String =
+    val nextMapping = mappings.find((x, _) => x._2 == destination)
+    nextMapping match
+      case Some(m) => m._1._1
+      case None => throw RuntimeException("Expected mapping not found")
+
+  @tailrec
+  def transformDestinationToSeed(destination: String, input: Long): Long =
+    if destination == "seed" then
+      input
+    else
+      val source = getSourceOfDestination(destination)
+      val transform = transformDestinationToSource(source, destination, input)
+      transformDestinationToSeed(source, transform)
+
+  def transformDestinationToSource(source: String, destination: String, input: Long): Long =
+    val relevantMapping = mappings((source, destination)).findLast(m => m.isInverseApplicable(input))
+    relevantMapping match
+      case Some(m) => m.applyInverse(input)
+      case None => input
+
+  val destination = "location"
+  transformDestinationToSeed(destination, location)
 
 def transformSeedsToLocations(
   seeds: List[Long],
@@ -48,6 +94,21 @@ def transformSeedsToLocations(
 def getSeeds(line: String): List[Long] =
   require(line.startsWith("seeds: "))
   getDigits(line)
+
+def getSeedRanges(line: String): List[(Long, Long)] =
+  @tailrec
+  def parseInputs(inputs: List[Long], acc: List[(Long, Long)]): List[(Long, Long)] =
+    inputs match
+      case start :: length :: xs =>
+        val updatedAcc = (start, length) :: acc
+        parseInputs(xs, updatedAcc)
+      case _ => acc
+
+  val seedInputs = getSeeds(line)
+  parseInputs(seedInputs, List.empty)
+
+def seedRangeToSeedList(start: Long, length: Long): List[Long] =
+  (start to (start + length)).toList
 
 def getDigits(line: String): List[Long] =
   def digitsRegex = """(\d+)""".r

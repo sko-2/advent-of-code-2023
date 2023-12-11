@@ -10,6 +10,15 @@ case class MappingDetail(
       destinationStartingIndex + (input - sourceStartingIndex)
     else
       input
-      
+
+  def applyInverse(input: Long): Long =
+    if isInverseApplicable(input) then
+      sourceStartingIndex + (input - destinationStartingIndex)
+    else
+      input
+
   def isApplicable(input: Long): Boolean =
     input >= sourceStartingIndex && input < (sourceStartingIndex + numberOfMatchingIndices)
+
+  def isInverseApplicable(input: Long): Boolean =
+    input >= destinationStartingIndex && input < (destinationStartingIndex + numberOfMatchingIndices)
