@@ -22,7 +22,6 @@ def partOneSolution(): Int =
   val gameScoresTotal = lines.map(getGameScore(_, updateScore)).sum
   gameScoresTotal
 
-
 def partTwoSolution(): Int =
   def updateScore(currentGameNumber: Int, currentScore: Int, winningNumbers: List[Int]): Int =
     if winningNumbers.contains(currentGameNumber) then
