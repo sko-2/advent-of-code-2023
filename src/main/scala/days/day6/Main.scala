@@ -24,6 +24,7 @@ def partTwoSolution(): Long =
     List((time, distance))
 
   solve(parseTimesAndDistances)
+
 def getNumberOfSolutions(raceLength: Long, distanceToBeat: Long): Long =
   val candidateTest = isDistanceFurtherThanRecord(_, raceLength, distanceToBeat)
   (1L until raceLength)
