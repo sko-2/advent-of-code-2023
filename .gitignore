@@ -1,3 +1,6 @@
+# Avoid committing puzzle inputs as requested by Advent of Code FAQ
+**/days/*/input.txt
+
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
