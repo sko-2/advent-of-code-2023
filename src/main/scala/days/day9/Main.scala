@@ -6,11 +6,21 @@ import scala.annotation.tailrec
 
 @main
 def main(args: String*): Unit =
+  val result = partTwoSolution()
+  println(result)
+
+def partOneSolution(): Int =
+  solution(parsePastSensorReadings)
+
+def partTwoSolution(): Int =
+  solution(parsePastSensorReadings.andThen(_.reverse))
+
+def solution(parsingPipeline: String => List[Int]): Int =
   val lines = InputFileReader.getLinesFromFile("./src/main/scala/days/day9/input.txt")
-  val sensorReadings = lines.map(parsePastSensorReadings)
+  val sensorReadings = lines.map(parsingPipeline)
   val futureSensorReadings = sensorReadings.map(calculateFutureSensorReading)
   val result = futureSensorReadings.sum
-  println(result)
+  result
 
 def parsePastSensorReadings(line: String): List[Int] =
   def digitRegex = """(-?\d+)""".r
