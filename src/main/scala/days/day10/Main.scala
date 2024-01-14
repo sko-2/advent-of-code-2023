@@ -7,11 +7,40 @@ import scala.annotation.tailrec
 
 @main
 def main(args: String*): Unit =
+  val result = partTwoSolution()
+  println(result)
+
+def partOneSolution(): Int =
+  val pipePath = solvePipePath()
+  val midPoint = (pipePath.length / 2) + (pipePath.length % 2)
+  midPoint
+
+def partTwoSolution(): Int =
+  def triangleFormulaArea(points: List[(Int, Int)]): Int =
+    def laceUpTerms(xs: List[Int], ys: List[Int]): List[Int] =
+      xs.zip(ys.drop(1) :+ ys.head).map(x => x._1 * x._2)
+    val xs = points.map(_._1)
+    val ys = points.map(_._2)
+
+    val positiveTerms = laceUpTerms(xs, ys)
+    val negativeTerms = laceUpTerms(ys, xs)
+
+    val combinedTerms = positiveTerms.zip(negativeTerms).map(x => x._1 - x._2).sum
+    combinedTerms / 2
+
+  def solveForInteriorPointsWithPickersTheorem(points: List[(Int, Int)]): Int =
+    triangleFormulaArea(points) - (points.length / 2) + 1
+
   val lines = InputFileReader.getLinesFromFile("./src/main/scala/days/day10/input.txt").toList
   val pipeMap = parseInputMap(lines)
   val pipePath = findPipePath(pipeMap)
-  val midPoint = (pipePath.length / 2) + (pipePath.length % 2)
-  println(midPoint)
+  solveForInteriorPointsWithPickersTheorem(pipePath)
+
+def solvePipePath(): List[(Int, Int)] =
+  val lines = InputFileReader.getLinesFromFile("./src/main/scala/days/day10/input.txt").toList
+  val pipeMap = parseInputMap(lines)
+  val pipePath = findPipePath(pipeMap)
+  pipePath
 
 def parseInputMap(lines: List[String]): PipeMap =
   def mapCharToMapTile(char: Char): MapTile =
